@@ -17,7 +17,11 @@
 #include <ctype.h>
 #include <string.h>
 
-typedef enum {false, true} bool;
+typedef enum
+{
+    false,
+    true
+} bool;
 
 /* Tamanho dos campos dos registros */
 /* Campos de tamanho fixo */
@@ -36,9 +40,9 @@ typedef enum {false, true} bool;
 #define TAM_MAX_CATEGORIA 20
 
 #define MAX_REGISTROS 1000
-#define TAM_REGISTRO_USUARIO (TAM_ID_USER+TAM_MAX_USER+TAM_MAX_EMAIL+TAM_SALDO+TAM_CELULAR)
+#define TAM_REGISTRO_USUARIO (TAM_ID_USER + TAM_MAX_USER + TAM_MAX_EMAIL + TAM_SALDO + TAM_CELULAR)
 #define TAM_REGISTRO_JOGO 256
-#define TAM_REGISTRO_COMPRA (TAM_ID_USER+TAM_DATE+TAM_ID_GAME-3)
+#define TAM_REGISTRO_COMPRA (TAM_ID_USER + TAM_DATE + TAM_ID_GAME - 3)
 #define TAM_ARQUIVO_USUARIO (TAM_REGISTRO_USUARIO * MAX_REGISTROS + 1)
 #define TAM_ARQUIVO_JOGO (TAM_REGISTRO_JOGO * MAX_REGISTROS + 1)
 #define TAM_ARQUIVO_COMPRA (TAM_REGISTRO_COMPRA * MAX_REGISTROS + 1)
@@ -58,21 +62,22 @@ typedef enum {false, true} bool;
 #define TAM_ARQUIVO_CATEGORIAS_IDX (1000 * MAX_REGISTROS + 1)
 
 /* Mensagens padrões */
-#define SUCESSO                          "OK\n"
-#define REGS_PERCORRIDOS                "Registros percorridos:"
+#define SUCESSO "OK\n"
+#define REGS_PERCORRIDOS "Registros percorridos:"
 #define AVISO_NENHUM_REGISTRO_ENCONTRADO "AVISO: Nenhum registro encontrado\n"
-#define ERRO_OPCAO_INVALIDA              "ERRO: Opcao invalida\n"
-#define ERRO_MEMORIA_INSUFICIENTE        "ERRO: Memoria insuficiente\n"
-#define ERRO_PK_REPETIDA                 "ERRO: Ja existe um registro com a chave %s\n"
-#define ERRO_REGISTRO_NAO_ENCONTRADO     "ERRO: Registro nao encontrado\n"
-#define ERRO_SALDO_NAO_SUFICIENTE        "ERRO: Saldo insuficiente\n"
-#define ERRO_CATEGORIA_REPETIDA          "ERRO: O jogo %s ja possui a categoria %s\n"
-#define ERRO_VALOR_INVALIDO              "ERRO: Valor invalido\n"
-#define ERRO_ARQUIVO_VAZIO               "ERRO: Arquivo vazio\n"
-#define ERRO_NAO_IMPLEMENTADO            "ERRO: Funcao %s nao implementada\n"
+#define ERRO_OPCAO_INVALIDA "ERRO: Opcao invalida\n"
+#define ERRO_MEMORIA_INSUFICIENTE "ERRO: Memoria insuficiente\n"
+#define ERRO_PK_REPETIDA "ERRO: Ja existe um registro com a chave %s\n"
+#define ERRO_REGISTRO_NAO_ENCONTRADO "ERRO: Registro nao encontrado\n"
+#define ERRO_SALDO_NAO_SUFICIENTE "ERRO: Saldo insuficiente\n"
+#define ERRO_CATEGORIA_REPETIDA "ERRO: O jogo %s ja possui a categoria %s\n"
+#define ERRO_VALOR_INVALIDO "ERRO: Valor invalido\n"
+#define ERRO_ARQUIVO_VAZIO "ERRO: Arquivo vazio\n"
+#define ERRO_NAO_IMPLEMENTADO "ERRO: Funcao %s nao implementada\n"
 
 /* Registro de Usuario */
-typedef struct {
+typedef struct
+{
     char id_user[TAM_ID_USER];
     char username[TAM_MAX_USER];
     char email[TAM_MAX_EMAIL];
@@ -81,7 +86,8 @@ typedef struct {
 } Usuario;
 
 /* Registro de Jogo */
-typedef struct {
+typedef struct
+{
     char id_game[TAM_ID_GAME];
     char titulo[TAM_MAX_TITULO];
     char desenvolvedor[TAM_MAX_EMPRESA];
@@ -92,61 +98,69 @@ typedef struct {
 } Jogo;
 
 /* Registro de Compra */
-typedef struct {
+typedef struct
+{
     char id_user_dono[TAM_ID_USER];
     char id_game[TAM_ID_GAME];
     char data_compra[TAM_DATE];
 } Compra;
 
-
 /*----- Registros dos índices -----*/
 
 /* Struct para o índice primário dos usuários */
-typedef struct {
+typedef struct
+{
     char id_user[TAM_ID_USER];
     int rrn;
 } usuarios_index;
 
 /* Struct para o índice primário dos jogos */
-typedef struct {
+typedef struct
+{
     char id_game[TAM_ID_GAME];
     int rrn;
 } jogos_index;
 
 /* Struct para índice primário dos compras */
-typedef struct {
+typedef struct
+{
     char id_user[TAM_ID_USER];
     char id_game[TAM_ID_GAME];
     int rrn;
 } compras_index;
 
 /* Struct para o índice secundário dos titulos */
-typedef struct {
+typedef struct
+{
     char titulo[TAM_MAX_TITULO];
     char id_game[TAM_ID_GAME];
 } titulos_index;
 
 /* Struct para o índice secundário das datas das compras */
-typedef struct {
+typedef struct
+{
     char data[TAM_DATE];
     char id_user[TAM_ID_USER];
     char id_game[TAM_ID_GAME];
 } data_user_game_index;
 
 /* Struct para o índice secundário das categorias (lista invertida) */
-typedef struct {
-    char chave_secundaria[TAM_MAX_CATEGORIA];   //string com o nome da categoria
+typedef struct
+{
+    char chave_secundaria[TAM_MAX_CATEGORIA]; // string com o nome da categoria
     int primeiro_indice;
 } categorias_secundario_index;
 
 /* Struct para o índice primário das categorias (lista invertida) */
-typedef struct {
-    char chave_primaria[TAM_ID_GAME];   //string com o id do jogo
+typedef struct
+{
+    char chave_primaria[TAM_ID_GAME]; // string com o id do jogo
     int proximo_indice;
 } categorias_primario_index;
 
 /* Struct para os parâmetros de uma lista invertida */
-typedef struct {
+typedef struct
+{
     // Ponteiro para o índice secundário
     categorias_secundario_index *categorias_secundario_idx;
 
@@ -210,16 +224,18 @@ unsigned qtd_registros_compras = 0;
 /* Funções de geração determinística de números pseudo-aleatórios */
 uint64_t prng_seed;
 
-void prng_srand(uint64_t value) {
+void prng_srand(uint64_t value)
+{
     prng_seed = value;
 }
 
-uint64_t prng_rand() {
+uint64_t prng_rand()
+{
     // https://en.wikipedia.org/wiki/Xorshift#xorshift*
     uint64_t x = prng_seed; // O estado deve ser iniciado com um valor diferente de 0
-    x ^= x >> 12; // a
-    x ^= x << 25; // b
-    x ^= x >> 27; // c
+    x ^= x >> 12;           // a
+    x ^= x << 25;           // b
+    x ^= x >> 27;           // c
     prng_seed = x;
     return x * UINT64_C(0x2545F4914F6CDD1D);
 }
@@ -227,31 +243,36 @@ uint64_t prng_rand() {
 /* Funções de manipulação de data */
 int64_t epoch;
 
-void set_time(int64_t value) {
+void set_time(int64_t value)
+{
     epoch = value;
 }
 
-void tick_time() {
+void tick_time()
+{
     epoch += prng_rand() % 864000; // 10 dias
 }
 
-struct tm gmtime_(const int64_t lcltime) {
+struct tm gmtime_(const int64_t lcltime)
+{
     // based on https://sourceware.org/git/?p=newlib-cygwin.git;a=blob;f=newlib/libc/time/gmtime_r.c;
     struct tm res;
     long days = lcltime / 86400 + 719468;
     long rem = lcltime % 86400;
-    if (rem < 0) {
+    if (rem < 0)
+    {
         rem += 86400;
         --days;
     }
 
-    res.tm_hour = (int) (rem / 3600);
+    res.tm_hour = (int)(rem / 3600);
     rem %= 3600;
-    res.tm_min = (int) (rem / 60);
-    res.tm_sec = (int) (rem % 60);
+    res.tm_min = (int)(rem / 60);
+    res.tm_sec = (int)(rem % 60);
 
     int weekday = (3 + days) % 7;
-    if (weekday < 0) weekday += 7;
+    if (weekday < 0)
+        weekday += 7;
     res.tm_wday = weekday;
 
     int era = (days >= 0 ? days : days - 146096) / 146097;
@@ -286,7 +307,8 @@ struct tm gmtime_(const int64_t lcltime) {
  * @param buffer String de tamanho <code>TAM_DATE</code> no qual será escrita
  * a <i>timestamp</i>. É terminado pelo caractere <code>\0</code>.
  */
-void current_date(char buffer[TAM_DATE]) {
+void current_date(char buffer[TAM_DATE])
+{
     // http://www.cplusplus.com/reference/ctime/strftime/
     // http://www.cplusplus.com/reference/ctime/gmtime/
     // AAAA MM DD
@@ -296,26 +318,28 @@ void current_date(char buffer[TAM_DATE]) {
 }
 
 /* Remove comentários (--) e caracteres whitespace do começo e fim de uma string */
-void clear_input(char *str) {
+void clear_input(char *str)
+{
     char *ptr = str;
     int len = 0;
 
-    for (; ptr[len]; ++len) {
-        if (strncmp(&ptr[len], "--", 2) == 0) {
+    for (; ptr[len]; ++len)
+    {
+        if (strncmp(&ptr[len], "--", 2) == 0)
+        {
             ptr[len] = '\0';
             break;
         }
     }
 
-    while(len-1 > 0 && isspace(ptr[len-1]))
+    while (len - 1 > 0 && isspace(ptr[len - 1]))
         ptr[--len] = '\0';
 
-    while(*ptr && isspace(*ptr))
+    while (*ptr && isspace(*ptr))
         ++ptr, --len;
 
     memmove(str, ptr, len + 1);
 }
-
 
 /* ==========================================================================
  * ========================= PROTÓTIPOS DAS FUNÇÕES =========================
@@ -346,13 +370,13 @@ void escrever_registro_jogo(Jogo j, int rrn);
 void escrever_registro_compra(Compra c, int rrn);
 
 /* Funções principais */
-void cadastrar_usuario_menu(char* id_user, char* username, char* email);
-void cadastrar_celular_menu(char* id_user, char* celular);
+void cadastrar_usuario_menu(char *id_user, char *username, char *email);
+void cadastrar_celular_menu(char *id_user, char *celular);
 void remover_usuario_menu(char *id_user);
-void cadastrar_jogo_menu(char* titulo, char* desenvolvedor, char* editora, char* lancamento, double preco);
-void adicionar_saldo_menu(char* id_user, double valor);
-void comprar_menu(char* id_user, char* titulo);
-void cadastrar_categoria_menu(char* titulo, char* categoria);
+void cadastrar_jogo_menu(char *titulo, char *desenvolvedor, char *editora, char *lancamento, double preco);
+void adicionar_saldo_menu(char *id_user, double valor);
+void comprar_menu(char *id_user, char *titulo);
+void cadastrar_categoria_menu(char *titulo, char *categoria);
 
 /* Busca */
 void buscar_usuario_id_user_menu(char *id_user);
@@ -433,7 +457,7 @@ bool inverted_list_secondary_search(int *result, bool exibir_caminho, char *chav
 /**
  * Responsável por percorrer o índice primário de uma Lista invertida (T). O valor de retorno indica a quantidade de chaves encontradas.
  * O ponteiro para o vetor de strings result pode ser fornecido opcionalmente, e será populado com a lista de todas as chaves encontradas.
- * O ponteiro para o inteiro indice_final também pode ser fornecido opcionalmente, e deve conter o índice do último campo da lista encadeada 
+ * O ponteiro para o inteiro indice_final também pode ser fornecido opcionalmente, e deve conter o índice do último campo da lista encadeada
  * da chave primaria fornecida (isso é útil na inserção de um novo registro).<br />
  * <br />
  * Exemplos de uso:<br />
@@ -474,12 +498,12 @@ int inverted_list_primary_search(char result[][TAM_CHAVE_CATEGORIAS_PRIMARIO_IDX
  * @param pad Caractere utilizado para fazer o preenchimento à direita.
  * @param size Tamanho desejado para a string.
  */
-char* strpadright(char *str, char pad, unsigned size);
+char *strpadright(char *str, char pad, unsigned size);
 
 /* Funções de busca binária */
 /**
  * Função Genérica de busca binária, que aceita parâmetros genéricos (assinatura baseada na função bsearch da biblioteca C).
- * 
+ *
  * @param key Chave de busca genérica.
  * @param base0 Base onde ocorrerá a busca, por exemplo, um ponteiro para um vetor.
  * @param nmemb Número de elementos na base.
@@ -488,12 +512,12 @@ char* strpadright(char *str, char pad, unsigned size);
  * @param exibir_caminho Indica se o caminho percorrido deve ser impresso.
  * @return Retorna o elemento encontrado ou NULL se não encontrou.
  */
-void* busca_binaria(const void *key, const void *base0, size_t nmemb, size_t size, int (*compar)(const void *, const void *), bool exibir_caminho);
+void *busca_binaria(const void *key, const void *base0, size_t nmemb, size_t size, int (*compar)(const void *, const void *), bool exibir_caminho);
 
 /**
  * Função Genérica de busca binária que encontra o elemento de BAIXO mais próximo da chave.
  * Sua assinatura também é baseada na função bsearch da biblioteca C.
- * 
+ *
  * @param key Chave de busca genérica.
  * @param base0 Base onde ocorrerá a busca, por exemplo, um ponteiro para um vetor.
  * @param nmemb Número de elementos na base.
@@ -502,12 +526,12 @@ void* busca_binaria(const void *key, const void *base0, size_t nmemb, size_t siz
  * @param exibir_caminho Indica se o caminho percorrido deve ser impresso.
  * @return Retorna o elemento encontrado ou o de BAIXO mais próximo.
  */
-void* busca_binaria_piso(const void* key, void* base, size_t num, size_t size, int (*compar)(const void*,const void*));
+void *busca_binaria_piso(const void *key, void *base, size_t num, size_t size, int (*compar)(const void *, const void *));
 
 /**
  * Função Genérica de busca binária que encontra o elemento de CIMA mais próximo da chave.
  * Sua assinatura também é baseada na função bsearch da biblioteca C.
- * 
+ *
  * @param key Chave de busca genérica.
  * @param base0 Base onde ocorrerá a busca, por exemplo, um ponteiro para um vetor.
  * @param nmemb Número de elementos na base.
@@ -516,16 +540,16 @@ void* busca_binaria_piso(const void* key, void* base, size_t num, size_t size, i
  * @param exibir_caminho Indica se o caminho percorrido deve ser impresso.
  * @return Retorna o elemento encontrado ou o de CIMA mais próximo.
  */
-void* busca_binaria_teto(const void* key, void* base, size_t num, size_t size, int (*compar)(const void*,const void*));
+void *busca_binaria_teto(const void *key, void *base, size_t num, size_t size, int (*compar)(const void *, const void *));
 
 /* <<< COLOQUE AQUI OS DEMAIS PROTÓTIPOS DE FUNÇÕES, SE NECESSÁRIO >>> */
-
 
 /* ==========================================================================
  * ============================ FUNÇÃO PRINCIPAL ============================
  * =============================== NÃO ALTERAR ============================== */
 
-int main() {
+int main()
+{
     // variáveis utilizadas pelo interpretador de comandos
     char input[500];
     uint64_t seed = 2;
@@ -546,19 +570,22 @@ int main() {
 
     scanf("SET ARQUIVO_USUARIOS '%[^\n]\n", ARQUIVO_USUARIOS);
     int temp_len = strlen(ARQUIVO_USUARIOS);
-    if (temp_len < 2) temp_len = 2; // corrige o tamanho caso a entrada seja omitida
+    if (temp_len < 2)
+        temp_len = 2; // corrige o tamanho caso a entrada seja omitida
     qtd_registros_usuarios = (temp_len - 2) / TAM_REGISTRO_USUARIO;
     ARQUIVO_USUARIOS[temp_len - 2] = '\0';
 
     scanf("SET ARQUIVO_JOGOS '%[^\n]\n", ARQUIVO_JOGOS);
     temp_len = strlen(ARQUIVO_JOGOS);
-    if (temp_len < 2) temp_len = 2; // corrige o tamanho caso a entrada seja omitida
+    if (temp_len < 2)
+        temp_len = 2; // corrige o tamanho caso a entrada seja omitida
     qtd_registros_jogos = (temp_len - 2) / TAM_REGISTRO_JOGO;
     ARQUIVO_JOGOS[temp_len - 2] = '\0';
 
     scanf("SET ARQUIVO_COMPRAS '%[^\n]\n", ARQUIVO_COMPRAS);
     temp_len = strlen(ARQUIVO_COMPRAS);
-    if (temp_len < 2) temp_len = 2; // corrige o tamanho caso a entrada seja omitida
+    if (temp_len < 2)
+        temp_len = 2; // corrige o tamanho caso a entrada seja omitida
     qtd_registros_compras = (temp_len - 2) / TAM_REGISTRO_COMPRA;
     ARQUIVO_COMPRAS[temp_len - 2] = '\0';
 
@@ -573,7 +600,8 @@ int main() {
     criar_data_user_game_idx();
     criar_categorias_idx();
 
-    while (1) {
+    while (1)
+    {
         fgets(input, 500, stdin);
         printf("%s", input);
         clear_input(input);
@@ -624,7 +652,7 @@ int main() {
             imprimir_arquivo_jogos_menu();
         else if (strcmp("\\echo file ARQUIVO_COMPRAS", input) == 0)
             imprimir_arquivo_compras_menu();
-        
+
         /* Imprimir índices primários */
         else if (strcmp("\\echo index usuarios_idx", input) == 0)
             imprimir_usuarios_idx_menu();
@@ -645,11 +673,22 @@ int main() {
 
         /* Liberar memória eventualmente alocada e encerrar programa */
         else if (strcmp("\\q", input) == 0)
-            { liberar_memoria_menu(); return 0; }
+        {
+            liberar_memoria_menu();
+            return 0;
+        }
         else if (sscanf(input, "SET SRAND %lu;", &seed) == 1)
-            { prng_srand(seed); printf(SUCESSO); continue; }
+        {
+            prng_srand(seed);
+            printf(SUCESSO);
+            continue;
+        }
         else if (sscanf(input, "SET TIME %lu;", &time) == 1)
-            { set_time(time); printf(SUCESSO); continue; }
+        {
+            set_time(time);
+            printf(SUCESSO);
+            continue;
+        }
         else
             printf(ERRO_OPCAO_INVALIDA);
 
@@ -660,16 +699,19 @@ int main() {
 /* ========================================================================== */
 
 /* Cria o índice primário usuarios_idx */
-void criar_usuarios_idx() {
+void criar_usuarios_idx()
+{
     if (!usuarios_idx)
         usuarios_idx = malloc(MAX_REGISTROS * sizeof(usuarios_index));
 
-    if (!usuarios_idx) {
+    if (!usuarios_idx)
+    {
         printf(ERRO_MEMORIA_INSUFICIENTE);
         exit(1);
     }
 
-    for (unsigned i = 0; i < qtd_registros_usuarios; ++i) {
+    for (unsigned i = 0; i < qtd_registros_usuarios; ++i)
+    {
         Usuario u = recuperar_registro_usuario(i);
 
         if (strncmp(u.id_user, "*|", 2) == 0)
@@ -684,19 +726,20 @@ void criar_usuarios_idx() {
 }
 
 /* Cria o índice primário jogos_idx */
-void criar_jogos_idx() 
+void criar_jogos_idx()
 {
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     if (!jogos_idx)
         jogos_idx = malloc(MAX_REGISTROS * sizeof(jogos_index));
 
-    if (!jogos_idx) 
+    if (!jogos_idx)
     {
         printf(ERRO_MEMORIA_INSUFICIENTE);
         exit(1);
     }
 
-    for (unsigned i = 0; i < qtd_registros_jogos; ++i) {
+    for (unsigned i = 0; i < qtd_registros_jogos; ++i)
+    {
         Jogo u = recuperar_registro_jogo(i);
 
         if (strncmp(u.id_game, "*|", 2) == 0)
@@ -708,28 +751,32 @@ void criar_jogos_idx()
     }
 
     qsort(jogos_idx, qtd_registros_jogos, sizeof(jogos_index), qsort_jogos_idx);
-   // printf(ERRO_NAO_IMPLEMENTADO, "criar_jogos_idx");
+    // printf(ERRO_NAO_IMPLEMENTADO, "criar_jogos_idx");
 }
 
 /* Cria o índice primário compras_idx */
-void criar_compras_idx() {
+void criar_compras_idx()
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    //printf(ERRO_NAO_IMPLEMENTADO, "criar_compras_idx");
+
+    // printf(ERRO_NAO_IMPLEMENTADO, "criar_compras_idx");
 }
 
 /* Cria o índice secundário titulo_idx */
-void criar_titulo_idx() {
+void criar_titulo_idx()
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     if (!titulo_idx)
         titulo_idx = malloc(MAX_REGISTROS * sizeof(titulos_index));
 
-    if (!titulo_idx) 
+    if (!titulo_idx)
     {
         printf(ERRO_MEMORIA_INSUFICIENTE);
         exit(1);
     }
 
-    for (unsigned i = 0; i < qtd_registros_jogos; ++i) {
+    for (unsigned i = 0; i < qtd_registros_jogos; ++i)
+    {
         Jogo u = recuperar_registro_jogo(i);
 
         strcpy(titulo_idx[i].id_game, u.id_game);
@@ -737,24 +784,25 @@ void criar_titulo_idx() {
     }
 
     qsort(titulo_idx, qtd_registros_jogos, sizeof(titulos_index), qsort_titulo_idx);
-    //printf(ERRO_NAO_IMPLEMENTADO, "criar_titulo_idx");
+    // printf(ERRO_NAO_IMPLEMENTADO, "criar_titulo_idx");
 }
 
 /* Cria o índice secundário data_user_game_idx */
-void criar_data_user_game_idx() {
+void criar_data_user_game_idx()
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    //printf(ERRO_NAO_IMPLEMENTADO, "criar_data_user_game_idx");
+    // printf(ERRO_NAO_IMPLEMENTADO, "criar_data_user_game_idx");
 }
 
 /* Cria os índices (secundário e primário) de categorias_idx */
-void criar_categorias_idx() {
+void criar_categorias_idx()
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    //printf(ERRO_NAO_IMPLEMENTADO, "criar_categorias_idx");
+    // printf(ERRO_NAO_IMPLEMENTADO, "criar_categorias_idx");
 }
 
-
 /* Exibe um usuario dado seu RRN */
-bool exibir_usuario(int rrn) 
+bool exibir_usuario(int rrn)
 {
     if (rrn < 0)
         return false;
@@ -766,7 +814,7 @@ bool exibir_usuario(int rrn)
 }
 
 /* Exibe um jogo dado seu RRN */
-bool exibir_jogo(int rrn) 
+bool exibir_jogo(int rrn)
 {
     if (rrn < 0)
         return false;
@@ -778,7 +826,7 @@ bool exibir_jogo(int rrn)
 }
 
 /* Exibe uma compra dado seu RRN */
-bool exibir_compra(int rrn) 
+bool exibir_compra(int rrn)
 {
     if (rrn < 0)
         return false;
@@ -790,10 +838,9 @@ bool exibir_compra(int rrn)
     return true;
 }
 
-
 /* Recupera do arquivo de usuários o registro com o RRN
  * informado e retorna os dados na struct Usuario */
-Usuario recuperar_registro_usuario(int rrn) 
+Usuario recuperar_registro_usuario(int rrn)
 {
     Usuario u;
     char temp[TAM_REGISTRO_USUARIO + 1], *p;
@@ -817,7 +864,7 @@ Usuario recuperar_registro_usuario(int rrn)
 
 /* Recupera do arquivo de jogos o registro com o RRN
  * informado e retorna os dados na struct Jogo */
-Jogo recuperar_registro_jogo(int rrn) 
+Jogo recuperar_registro_jogo(int rrn)
 {
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     Jogo j;
@@ -842,24 +889,24 @@ Jogo recuperar_registro_jogo(int rrn)
     p = strtok(NULL, ";");
 
     return j;
-    //printf(ERRO_NAO_IMPLEMENTADO, "recuperar_registro_jogo");
+    // printf(ERRO_NAO_IMPLEMENTADO, "recuperar_registro_jogo");
 }
 
 /* Recupera do arquivo de compras o registro com o RRN
  * informado e retorna os dados na struct Compra */
-Compra recuperar_registro_compra(int rrn) 
-{     
+Compra recuperar_registro_compra(int rrn)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "recuperar_registro_compra");
 }
 
-
 /* Escreve no arquivo de usuários na posição informada (RRN)
  * os dados na struct Usuario */
-void escrever_registro_usuario(Usuario u, int rrn) 
+void escrever_registro_usuario(Usuario u, int rrn)
 {
     char temp[TAM_REGISTRO_USUARIO + 1], p[100];
-    temp[0] = '\0'; p[0] = '\0';
+    temp[0] = '\0';
+    p[0] = '\0';
 
     strcpy(temp, u.id_user);
     strcat(temp, ";");
@@ -876,17 +923,19 @@ void escrever_registro_usuario(Usuario u, int rrn)
     for (int i = strlen(temp); i < TAM_REGISTRO_USUARIO; i++)
         temp[i] = '#';
 
-    strncpy(ARQUIVO_USUARIOS + rrn*TAM_REGISTRO_USUARIO, temp, TAM_REGISTRO_USUARIO);
-    ARQUIVO_USUARIOS[qtd_registros_usuarios*TAM_REGISTRO_USUARIO] = '\0';
+    strncpy(ARQUIVO_USUARIOS + rrn * TAM_REGISTRO_USUARIO, temp, TAM_REGISTRO_USUARIO);
+    ARQUIVO_USUARIOS[qtd_registros_usuarios * TAM_REGISTRO_USUARIO] = '\0';
 }
 
 /* Escreve no arquivo de jogos na posição informada (RRN)
  * os dados na struct Jogo */
-void escrever_registro_jogo(Jogo j, int rrn) {
+void escrever_registro_jogo(Jogo j, int rrn)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    //CONCERTAR
+    // CONCERTAR
     char temp[TAM_REGISTRO_JOGO + 1], p[100];
-    temp[0] = '\0'; p[0] = '\0';
+    temp[0] = '\0';
+    p[0] = '\0';
 
     strcpy(temp, j.id_game);
     strcat(temp, ";");
@@ -905,329 +954,345 @@ void escrever_registro_jogo(Jogo j, int rrn) {
     for (int i = strlen(temp); i < TAM_REGISTRO_JOGO; i++)
         temp[i] = '#';
 
-    strncpy(ARQUIVO_JOGOS + rrn*TAM_REGISTRO_JOGO, temp, TAM_REGISTRO_JOGO);
-    ARQUIVO_JOGOS[qtd_registros_jogos*TAM_REGISTRO_JOGO] = '\0';
-   // printf(ERRO_NAO_IMPLEMENTADO, "escrever_registro_jogo");
+    strncpy(ARQUIVO_JOGOS + rrn * TAM_REGISTRO_JOGO, temp, TAM_REGISTRO_JOGO);
+    ARQUIVO_JOGOS[qtd_registros_jogos * TAM_REGISTRO_JOGO] = '\0';
+    // printf(ERRO_NAO_IMPLEMENTADO, "escrever_registro_jogo");
 }
 
 /* Escreve no arquivo de compras na posição informada (RRN)
  * os dados na struct Compra */
-void escrever_registro_compra(Compra c, int rrn) {
+void escrever_registro_compra(Compra c, int rrn)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "escrever_registro_compra");
 }
 
-
 /* Funções principais */
-void cadastrar_usuario_menu(char *id_user, char *username, char *email) 
+void cadastrar_usuario_menu(char *id_user, char *username, char *email)
 {
-    /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */   
-    //antes de inserir devo fazer a busca para ver se ja nao existe
-    usuarios_index Uaux; //instanciação
-    strcpy(Uaux.id_user, id_user); //copia o conteudo 
-    usuarios_index *aux = (usuarios_index* )busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
-    //parametro false indica que nao quero imprimir caminho
-    if(aux != NULL && aux->rrn != -1) // existe e nao foi deletado
+    /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
+    // antes de inserir devo fazer a busca para ver se ja nao existe
+    usuarios_index Uaux;           // instanciação
+    strcpy(Uaux.id_user, id_user); // copia o conteudo
+    usuarios_index *aux = (usuarios_index *)busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
+    // parametro false indica que nao quero imprimir caminho
+    if (aux != NULL && aux->rrn != -1) // existe e nao foi deletado
     {
-        
-      printf(ERRO_PK_REPETIDA, id_user);
-      return; 
 
-    }   
-    else
-    { 
-        
-    int rrn = qtd_registros_usuarios; //instancia o rrn
-    usuarios_idx[rrn].rrn = rrn; //atribui um rrn para cada campo
-    Usuario user; //declara um dado do tipo usuário
-    user.saldo = 0.0; //inicia saldo como zero
-    //copia o conteudo das strings
+        printf(ERRO_PK_REPETIDA, id_user);
+        return;
+    }
+
+    // int rrn = qtd_registros_usuarios; //instancia o rrn
+    usuarios_idx[qtd_registros_usuarios].rrn = qtd_registros_usuarios; // atribui um rrn para cada campo
+    Usuario user;                                                      // declara um dado do tipo usuário
+    user.saldo = 0.0;                                                  // inicia saldo como zero
+    // copia o conteudo das strings
     strcpy(user.id_user, id_user);
     strcpy(user.username, username);
     strcpy(user.email, email);
     strcpy(user.celular, "***********");
-    strcpy(usuarios_idx[qtd_registros_usuarios++].id_user, id_user);
-    escrever_registro_usuario(user, rrn);
+    strcpy(usuarios_idx[qtd_registros_usuarios].id_user, id_user);
+    escrever_registro_usuario(user, qtd_registros_usuarios++);
     qsort(usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx);
     printf(SUCESSO);
-    }
-    //printf(ERRO_NAO_IMPLEMENTADO, "cadastrar_usuario_menu");
-    
-   
+
+    // printf(ERRO_NAO_IMPLEMENTADO, "cadastrar_usuario_menu");
 }
 
-void cadastrar_celular_menu(char* id_user, char* celular) 
+void cadastrar_celular_menu(char *id_user, char *celular)
 {
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    usuarios_index Uaux; //instanciação
-    strcpy(Uaux.id_user, id_user); //copia o conteudo 
-    usuarios_index *aux = (usuarios_index* )busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
+    usuarios_index Uaux;           // instanciação
+    strcpy(Uaux.id_user, id_user); // copia o conteudo
+    usuarios_index *aux = (usuarios_index *)busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
     Usuario user;
-    if(aux != NULL && aux->rrn != -1) // existe e nao foi deletado
+    if (aux != NULL && aux->rrn != -1) // existe e nao foi deletado
     {
-        
-        user = recuperar_registro_usuario(aux->rrn);
-        strcpy(user.celular, celular);        
-        escrever_registro_usuario(user, aux->rrn); /* escrever esse valor no arquivo*/     
-        printf(SUCESSO);
-      
-      return; 
 
-    }   
+        user = recuperar_registro_usuario(aux->rrn);
+        strcpy(user.celular, celular);
+        escrever_registro_usuario(user, aux->rrn); /* escrever esse valor no arquivo*/
+        printf(SUCESSO);
+
+        return;
+    }
     else
-    { 
-        
-    printf(ERRO_REGISTRO_NAO_ENCONTRADO);
-    
-    //printf(ERRO_NAO_IMPLEMENTADO, "cadastrar_celular_menu");
+    {
+
+        printf(ERRO_REGISTRO_NAO_ENCONTRADO);
+
+        // printf(ERRO_NAO_IMPLEMENTADO, "cadastrar_celular_menu");
     }
 }
 
-void remover_usuario_menu(char *id_user) 
+void remover_usuario_menu(char *id_user)
 {
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    usuarios_index Uaux; //instanciação
-    strcpy(Uaux.id_user, id_user); //copia o conteudo 
-    usuarios_index *aux = (usuarios_index* )busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
-    Usuario user = recuperar_registro_usuario(aux->rrn);
-    if(aux != NULL && aux->rrn != -1) // nao tem registro ou removido
+    usuarios_index Uaux;           // instanciação
+    strcpy(Uaux.id_user, id_user); // copia o conteudo
+    usuarios_index *aux = (usuarios_index *)busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
+    
+    
+    if (aux != NULL && aux->rrn != -1) // nao tem registro ou removido
     {
-        
-        ARQUIVO_USUARIOS[aux->rrn * TAM_ARQUIVO_USUARIO] = '*'; //sobreescreve o registro deletado 
-        ARQUIVO_USUARIOS[aux->rrn * TAM_ARQUIVO_USUARIO+1] = '|';  
+        //printf("%d %d %d\n", aux->rrn);
+        ARQUIVO_USUARIOS[aux->rrn * TAM_REGISTRO_USUARIO] = '*'; // sobreescreve o registro deletado
+        ARQUIVO_USUARIOS[aux->rrn * TAM_REGISTRO_USUARIO + 1] = '|';
         aux->rrn = -1;
         printf(SUCESSO);
-        return; 
-
-    }   
+        return;
+    }
     else
-    { 
+    {
         printf(ERRO_REGISTRO_NAO_ENCONTRADO);
     }
-   // printf(ERRO_NAO_IMPLEMENTADO, "remover_usuario_menu");
+    // printf(ERRO_NAO_IMPLEMENTADO, "remover_usuario_menu");
 }
 
-void cadastrar_jogo_menu(char *titulo, char *desenvolvedor, char *editora, char* lancamento, double preco) 
-{ //nao funciona
+void cadastrar_jogo_menu(char *titulo, char *desenvolvedor, char *editora, char *lancamento, double preco)
+{ // nao funciona
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    titulos_index Jaux; //instanciação
-    Jogo game; //declara um dado do tipo jogo
-    char id[TAM_ID_GAME]; //instancia
-    sprintf(id, "%08d", qtd_registros_jogos);//converte int num char
-    strcpy(Jaux.titulo, titulo); //copia o conteudo 
-    
-    titulos_index *aux = (titulos_index*)busca_binaria(&Jaux, titulo_idx, qtd_registros_jogos, sizeof(titulos_index), qsort_titulo_idx, false);
-   
-   if(aux != NULL && (strcmp(aux->titulo, titulo) != 1 && strcmp(aux->titulo, titulo) != -1)) // existe, e o titulo ja esta na base
+    titulos_index Jaux;                       // instanciação
+    Jogo game;                                // declara um dado do tipo jogo
+    char id[TAM_ID_GAME];                     // instancia
+    sprintf(id, "%08d", qtd_registros_jogos); // converte int num char
+    strcpy(Jaux.titulo, titulo);              // copia o conteudo
+
+    titulos_index *aux = (titulos_index *)busca_binaria(&Jaux, titulo_idx, qtd_registros_jogos, sizeof(titulos_index), qsort_titulo_idx, false);
+
+    if (aux != NULL && (strcmp(aux->titulo, titulo) != 1 && strcmp(aux->titulo, titulo) != -1)) // existe, e o titulo ja esta na base
     {
-        
+
         printf(ERRO_PK_REPETIDA, titulo);
-        
-        return; 
-        
-    }   
-    else
-    { 
-        
-    int rrn = qtd_registros_jogos; //instancia o rrn
-    jogos_idx[rrn].rrn = rrn; //atribui um rrn para cada campo
-    //copia o conteudo das stings
-    strcpy(game.id_game, id);
-    strcpy(game.titulo, titulo);
-    strcpy(game.desenvolvedor, desenvolvedor);
-    strcpy(game.editora, editora);
-    strcpy(game.data_lancamento, lancamento); 
-    game.preco = preco; 
-    strcpy(titulo_idx[qtd_registros_jogos].id_game, id);
-    strcpy(titulo_idx[qtd_registros_jogos].titulo, titulo);
-    strcpy(jogos_idx[qtd_registros_jogos++].id_game, id);
-    escrever_registro_jogo(game,rrn);
-    
-    
-    qsort(jogos_idx, qtd_registros_jogos, sizeof(jogos_index), qsort_jogos_idx);
-    qsort(titulo_idx, qtd_registros_jogos, sizeof(titulos_index), qsort_titulo_idx);
-    printf(SUCESSO);
+
+        return;
     }
-    //printf(ERRO_NAO_IMPLEMENTADO, "cadastrar_jogo_menu");
+    else
+    {
+
+        int rrn = qtd_registros_jogos; // instancia o rrn
+        jogos_idx[rrn].rrn = rrn;      // atribui um rrn para cada campo
+        // copia o conteudo das stings
+        strcpy(game.id_game, id);
+        strcpy(game.titulo, titulo);
+        strcpy(game.desenvolvedor, desenvolvedor);
+        strcpy(game.editora, editora);
+        strcpy(game.data_lancamento, lancamento);
+        game.preco = preco;
+        strcpy(titulo_idx[qtd_registros_jogos].id_game, id);
+        strcpy(titulo_idx[qtd_registros_jogos].titulo, titulo);
+        strcpy(jogos_idx[qtd_registros_jogos++].id_game, id);
+        escrever_registro_jogo(game, rrn);
+
+        qsort(jogos_idx, qtd_registros_jogos, sizeof(jogos_index), qsort_jogos_idx);
+        qsort(titulo_idx, qtd_registros_jogos, sizeof(titulos_index), qsort_titulo_idx);
+        printf(SUCESSO);
+    }
+    // printf(ERRO_NAO_IMPLEMENTADO, "cadastrar_jogo_menu");
 }
 
-void adicionar_saldo_menu(char *id_user, double valor) { /*conferir essa*/
+void adicionar_saldo_menu(char *id_user, double valor)
+{ /*conferir essa*/
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    usuarios_index Uaux; //instanciação
-    Usuario user; //instanciação
-    //char p[TAM_SALDO];
-    //char temp[TAM_REGISTRO_USUARIO + 1];
-    
-    strcpy(Uaux.id_user, id_user); //copia o conteudo 
-    usuarios_index *aux = (usuarios_index* )busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
-   if (aux != NULL && aux->rrn != -1) //se existe usuario 
-   {
-        if(valor > 0) //regra do enunciado para valores possiveis de saldo a acrescentar
+    usuarios_index Uaux; // instanciação
+    Usuario user;        // instanciação
+    // char p[TAM_SALDO];
+    // char temp[TAM_REGISTRO_USUARIO + 1];
+
+    strcpy(Uaux.id_user, id_user); // copia o conteudo
+    usuarios_index *aux = (usuarios_index *)busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
+    if (aux != NULL && aux->rrn != -1) // se existe usuario
+    {
+        if (valor > 0) // regra do enunciado para valores possiveis de saldo a acrescentar
         {
             user = recuperar_registro_usuario(aux->rrn);
-            user.saldo = valor + user.saldo; //caso ja tenha saldo add com esse valor existente         
-            escrever_registro_usuario(user, aux->rrn); /* escrever esse valor no arquivo*/     
+            user.saldo = valor + user.saldo;           // caso ja tenha saldo add com esse valor existente
+            escrever_registro_usuario(user, aux->rrn); /* escrever esse valor no arquivo*/
             printf(SUCESSO);
         }
         else
         {
             printf(ERRO_VALOR_INVALIDO);
         }
-   }
-   else //caso nao exista usuario
-   {
-       printf(ERRO_REGISTRO_NAO_ENCONTRADO);
-   }
-   // printf(ERRO_NAO_IMPLEMENTADO, "adicionar_saldo_menu");
+    }
+    else // caso nao exista usuario
+    {
+        printf(ERRO_REGISTRO_NAO_ENCONTRADO);
+    }
+    // printf(ERRO_NAO_IMPLEMENTADO, "adicionar_saldo_menu");
 }
 
-void comprar_menu(char *id_user, char *titulo) {
+void comprar_menu(char *id_user, char *titulo)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "comprar_menu");
 }
 
-void cadastrar_categoria_menu(char* titulo, char* categoria) {
+void cadastrar_categoria_menu(char *titulo, char *categoria)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    //editar arquivo de jogo
+    // editar arquivo de jogo
     printf(ERRO_NAO_IMPLEMENTADO, "cadastrar_categoria_menu");
 }
 
-
 /* Busca */
-void buscar_usuario_id_user_menu(char *id_user) // falta imprimir o caminho percorrido pela busca
+void buscar_usuario_id_user_menu(char *id_user)
 {
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    usuarios_index Uaux; //instanciação
-    strcpy(Uaux.id_user, id_user); //copia o conteudo 
-    usuarios_index *aux = (usuarios_index* )busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, true);
-    if(!(aux != NULL && aux->rrn != -1)) // nao existe
+    usuarios_index Uaux;           // instanciação
+    strcpy(Uaux.id_user, id_user); // copia o conteudo
+    usuarios_index *aux = (usuarios_index *)busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, true);
+    if (!(aux != NULL && aux->rrn != -1)) // nao existe
     {
-       printf(ERRO_REGISTRO_NAO_ENCONTRADO);
+        printf(ERRO_REGISTRO_NAO_ENCONTRADO);
         return;
+    }
 
-    }   
-    else
-    {
-        exibir_usuario(aux->rrn);
-    } 
-    
-    //printf(ERRO_NAO_IMPLEMENTADO, "buscar_usuario_id_user_menu");
+    exibir_usuario(aux->rrn); // exibe usuario
+
+    // printf(ERRO_NAO_IMPLEMENTADO, "buscar_usuario_id_user_menu");
 }
 
-void buscar_jogo_id_menu(char *id_game) {
+void buscar_jogo_id_menu(char *id_game)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    jogos_index Jaux; //instanciação
-    strcpy(Jaux.id_game, id_game); //copia o conteudo 
-    jogos_index *aux = (jogos_index* )busca_binaria(&Jaux, jogos_idx, qtd_registros_jogos, sizeof(jogos_index), qsort_jogos_idx, true);
-    if(!(aux != NULL && aux->rrn != -1)) // nao existe
+    jogos_index Jaux;              // instanciação
+    strcpy(Jaux.id_game, id_game); // copia o conteudo
+    jogos_index *aux = (jogos_index *)busca_binaria(&Jaux, jogos_idx, qtd_registros_jogos, sizeof(jogos_index), qsort_jogos_idx, true);
+    if (!(aux != NULL && aux->rrn != -1)) // nao existe
     {
-       printf(ERRO_REGISTRO_NAO_ENCONTRADO);
-       return;
-    }   
+        printf(ERRO_REGISTRO_NAO_ENCONTRADO);
+        return;
+    }
     else
     {
         exibir_jogo(aux->rrn);
-        
     }
-   
-   // printf(ERRO_NAO_IMPLEMENTADO, "buscar_jogo_id_menu");
+
+    // printf(ERRO_NAO_IMPLEMENTADO, "buscar_jogo_id_menu");
 }
 
-void buscar_jogo_titulo_menu(char *titulo) {
+void buscar_jogo_titulo_menu(char *titulo)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    titulos_index Jaux; //instanciação
-    strcpy(Jaux.titulo, titulo); //copia o conteudo 
-    titulos_index *aux = (titulos_index* )busca_binaria(&Jaux, titulo_idx, qtd_registros_jogos, sizeof(titulos_index), qsort_titulo_idx, true);
-    if(!(aux != NULL &&  (strcmp(aux->titulo, titulo) != 1 && strcmp(aux->titulo, titulo) != -1))) // checa se existe
+    titulos_index Jaux;          // instanciação
+    strcpy(Jaux.titulo, titulo); // copia o conteudo
+    titulos_index *aux = (titulos_index *)busca_binaria(&Jaux, titulo_idx, qtd_registros_jogos, sizeof(titulos_index), qsort_titulo_idx, true);
+    if (!(aux != NULL && (strcmp(aux->titulo, titulo) != 1 && strcmp(aux->titulo, titulo) != -1))) // checa se existe
     {
-       printf(ERRO_REGISTRO_NAO_ENCONTRADO);
-       return;
-    }   
+        printf(ERRO_REGISTRO_NAO_ENCONTRADO);
+        return;
+    }
     else
     {
         buscar_jogo_id_menu(aux->id_game);
     }
-    
-   // printf(ERRO_NAO_IMPLEMENTADO, "buscar_jogo_titulo_menu");
-}
 
+    // printf(ERRO_NAO_IMPLEMENTADO, "buscar_jogo_titulo_menu");
+}
 
 /* Listagem */
-void listar_usuarios_id_user_menu() {
+void listar_usuarios_id_user_menu()
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    int i = 0;
+
+    int i = 0, flag = 0;
     usuarios_index Uaux;
-    if(qtd_registros_usuarios > 0)
+
+    while (i < qtd_registros_usuarios)
     {
-    
-        
-        while(i < qtd_registros_usuarios)
+
+        // strcpy(Uaux.id_user, usuarios_idx[i].id_user); // copia o conteudo
+        // usuarios_index *aux = (usuarios_index *)busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
+
+        if (usuarios_idx[i].rrn != -1) // nao foi deletado
         {
-            
-        
-            strcpy(Uaux.id_user, usuarios_idx[i].id_user); //copia o conteudo 
-            usuarios_index *aux = (usuarios_index*)busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
-        
-            if(aux != NULL && aux->rrn != -1) // existe ou nao foi deletado
-            {   
-
-                exibir_usuario(aux->rrn);
-
-            }  
-            i++; 
+            flag = 1;
+            exibir_usuario(usuarios_idx[i].rrn);
         }
+        i++;
     }
-    else
-    {
-      printf(AVISO_NENHUM_REGISTRO_ENCONTRADO);
-    }
-    
-   // printf(ERRO_NAO_IMPLEMENTADO, "listar_usuarios_id_user_menu");
+    if (qtd_registros_usuarios == 0 || flag == 0)
+        printf(AVISO_NENHUM_REGISTRO_ENCONTRADO);
+    // printf(ERRO_NAO_IMPLEMENTADO, "listar_usuarios_id_user_menu");
 }
 
-void listar_jogos_categorias_menu(char *categoria) {
+void listar_jogos_categorias_menu(char *categoria)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "listar_jogo_categorias_menu");
 }
 
-void listar_compras_periodo_menu(char *data_inicio, char *data_fim) {
+void listar_compras_periodo_menu(char *data_inicio, char *data_fim)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-   // printf(ERRO_NAO_IMPLEMENTADO, "listar_compras_periodo_menu");
+    // printf(ERRO_NAO_IMPLEMENTADO, "listar_compras_periodo_menu");
 }
-
 
 /* Liberar espaço */
-void liberar_espaco_menu() {
+void liberar_espaco_menu() //Vacuum
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-   // printf(ERRO_NAO_IMPLEMENTADO, "liberar_espaco_menu");
+    int i = 0; 
+    int j = 0;
+
+    
+    while (ARQUIVO_USUARIOS[i] != '\0')
+    {
+        // Caso encontramos a marcação de removido, pulamos o registro.
+        if (i % TAM_REGISTRO_USUARIO == 0 && ARQUIVO_USUARIOS[i] == '*' && ARQUIVO_USUARIOS[i + 1] == '|')
+        {
+            i = i + TAM_REGISTRO_USUARIO;
+        }
+        
+        else
+        {
+            ARQUIVO_USUARIOS[j] = ARQUIVO_USUARIOS[i];
+            j++;
+            i++;
+        }
+    }
+
+    
+    ARQUIVO_USUARIOS[j] = '\0';
+    
+     qtd_registros_usuarios = j / TAM_REGISTRO_USUARIO;
+
+    
+    criar_usuarios_idx();
+
+    // printf(ERRO_NAO_IMPLEMENTADO, "liberar_espaco_menu");
 }
 
-
 /* Imprimir arquivos de dados */
-void imprimir_arquivo_usuarios_menu() {
+void imprimir_arquivo_usuarios_menu()
+{
     if (qtd_registros_usuarios == 0)
         printf(ERRO_ARQUIVO_VAZIO);
     else
         printf("%s\n", ARQUIVO_USUARIOS);
 }
 
-void imprimir_arquivo_jogos_menu() {
+void imprimir_arquivo_jogos_menu()
+{
     if (qtd_registros_jogos == 0)
         printf(ERRO_ARQUIVO_VAZIO);
     else
         printf("%s\n", ARQUIVO_JOGOS);
 }
 
-void imprimir_arquivo_compras_menu() {
+void imprimir_arquivo_compras_menu()
+{
     if (qtd_registros_compras == 0)
         printf(ERRO_ARQUIVO_VAZIO);
     else
         printf("%s\n", ARQUIVO_COMPRAS);
 }
 
-
 /* Imprimir índices primários */
-void imprimir_usuarios_idx_menu() {
+void imprimir_usuarios_idx_menu()
+{
     if (qtd_registros_usuarios == 0)
         printf(ERRO_ARQUIVO_VAZIO);
 
@@ -1235,7 +1300,8 @@ void imprimir_usuarios_idx_menu() {
         printf("%s, %d\n", usuarios_idx[i].id_user, usuarios_idx[i].rrn);
 }
 
-void imprimir_jogos_idx_menu() {
+void imprimir_jogos_idx_menu()
+{
     if (qtd_registros_jogos == 0)
         printf(ERRO_ARQUIVO_VAZIO);
 
@@ -1243,7 +1309,8 @@ void imprimir_jogos_idx_menu() {
         printf("%s, %d\n", jogos_idx[i].id_game, jogos_idx[i].rrn);
 }
 
-void imprimir_compras_idx_menu() {
+void imprimir_compras_idx_menu()
+{
     if (qtd_registros_compras == 0)
         printf(ERRO_ARQUIVO_VAZIO);
 
@@ -1251,9 +1318,9 @@ void imprimir_compras_idx_menu() {
         printf("%s, %s, %d\n", compras_idx[i].id_user, compras_idx[i].id_game, compras_idx[i].rrn);
 }
 
-
 /* Imprimir índices secundários */
-void imprimir_titulo_idx_menu() {
+void imprimir_titulo_idx_menu()
+{
     if (qtd_registros_jogos == 0)
         printf(ERRO_ARQUIVO_VAZIO);
 
@@ -1261,8 +1328,10 @@ void imprimir_titulo_idx_menu() {
         printf("%s, %s\n", titulo_idx[i].titulo, titulo_idx[i].id_game);
 }
 
-void imprimir_data_user_game_idx_menu() {
-    if (qtd_registros_compras == 0) {
+void imprimir_data_user_game_idx_menu()
+{
+    if (qtd_registros_compras == 0)
+    {
         printf(ERRO_ARQUIVO_VAZIO);
         return;
     }
@@ -1271,7 +1340,8 @@ void imprimir_data_user_game_idx_menu() {
         printf("%s, %s, %s\n", data_user_game_idx[i].data, data_user_game_idx[i].id_user, data_user_game_idx[i].id_game);
 }
 
-void imprimir_categorias_secundario_idx_menu() {
+void imprimir_categorias_secundario_idx_menu()
+{
     if (categorias_idx.qtd_registros_secundario == 0)
         printf(ERRO_ARQUIVO_VAZIO);
 
@@ -1279,7 +1349,8 @@ void imprimir_categorias_secundario_idx_menu() {
         printf("%s, %d\n", (categorias_idx.categorias_secundario_idx)[i].chave_secundaria, (categorias_idx.categorias_secundario_idx)[i].primeiro_indice);
 }
 
-void imprimir_categorias_primario_idx_menu() {
+void imprimir_categorias_primario_idx_menu()
+{
     if (categorias_idx.qtd_registros_primario == 0)
         printf(ERRO_ARQUIVO_VAZIO);
 
@@ -1287,132 +1358,141 @@ void imprimir_categorias_primario_idx_menu() {
         printf("%s, %d\n", (categorias_idx.categorias_primario_idx)[i].chave_primaria, (categorias_idx.categorias_primario_idx)[i].proximo_indice);
 }
 
-
 /* Liberar memória e encerrar programa */
-void liberar_memoria_menu() {
+void liberar_memoria_menu()
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    //printf(ERRO_NAO_IMPLEMENTADO, "liberar_memoria_menu");
+    // printf(ERRO_NAO_IMPLEMENTADO, "liberar_memoria_menu");
 }
 
-
 /* Função de comparação entre chaves do índice usuarios_idx */
-int qsort_usuarios_idx(const void *a, const void *b) {
-    return strcmp( ( (usuarios_index *)a )->id_user, ( (usuarios_index *)b )->id_user);
+int qsort_usuarios_idx(const void *a, const void *b)
+{
+    return strcmp(((usuarios_index *)a)->id_user, ((usuarios_index *)b)->id_user);
 }
 
 /* Função de comparação entre chaves do índice jogos_idx */
-int qsort_jogos_idx(const void *a, const void *b) {
+int qsort_jogos_idx(const void *a, const void *b)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    return strcmp( ( (jogos_index *)a )->id_game, ( (jogos_index *)b )->id_game);
-   // printf(ERRO_NAO_IMPLEMENTADO, "qsort_jogos_idx");
+    return strcmp(((jogos_index *)a)->id_game, ((jogos_index *)b)->id_game);
+    // printf(ERRO_NAO_IMPLEMENTADO, "qsort_jogos_idx");
 }
 
 /* Função de comparação entre chaves do índice compras_idx */
-int qsort_compras_idx(const void *a, const void *b) {
+int qsort_compras_idx(const void *a, const void *b)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "qsort_compras_idx");
 }
 
 /* Função de comparação entre chaves do índice titulo_idx */
-int qsort_titulo_idx(const void *a, const void *b) {
+int qsort_titulo_idx(const void *a, const void *b)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    return strcmp( ( (titulos_index *)a )->titulo, ( (titulos_index *)b )->titulo);
-    //printf(ERRO_NAO_IMPLEMENTADO, "qsort_titulo_idx");
+    return strcmp(((titulos_index *)a)->titulo, ((titulos_index *)b)->titulo);
+    // printf(ERRO_NAO_IMPLEMENTADO, "qsort_titulo_idx");
 }
 
 /* Funções de comparação entre chaves do índice data_user_game_idx */
-int qsort_data_idx(const void *a, const void *b) {
+int qsort_data_idx(const void *a, const void *b)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "qsort_data_idx");
 }
 
-int qsort_data_user_game_idx(const void *a, const void *b) {
+int qsort_data_user_game_idx(const void *a, const void *b)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "qsort_data_user_game_idx");
 }
 
 /* Função de comparação entre chaves do índice secundário de categorias_idx */
-int qsort_categorias_secundario_idx(const void *a, const void *b) {
+int qsort_categorias_secundario_idx(const void *a, const void *b)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "qsort_categorias_secundario_idx");
 }
 
-
 /* Funções de manipulação de Lista Invertida */
-void inverted_list_insert(char *chave_secundaria, char *chave_primaria, inverted_list *t) {
+void inverted_list_insert(char *chave_secundaria, char *chave_primaria, inverted_list *t)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "inverted_list_insert");
 }
 
-bool inverted_list_secondary_search(int *result, bool exibir_caminho, char *chave_secundaria, inverted_list *t) {
+bool inverted_list_secondary_search(int *result, bool exibir_caminho, char *chave_secundaria, inverted_list *t)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "inverted_list_secondary_search");
 }
 
-int inverted_list_primary_search(char result[][TAM_CHAVE_CATEGORIAS_PRIMARIO_IDX], bool exibir_caminho, int indice, int *indice_final, inverted_list *t) {
+int inverted_list_primary_search(char result[][TAM_CHAVE_CATEGORIAS_PRIMARIO_IDX], bool exibir_caminho, int indice, int *indice_final, inverted_list *t)
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "inverted_list_primary_search");
 }
 
-
-char* strpadright(char *str, char pad, unsigned size) {
+char *strpadright(char *str, char pad, unsigned size)
+{
     for (unsigned i = strlen(str); i < size; ++i)
         str[i] = pad;
     str[size] = '\0';
     return str;
 }
 
-
 /* Funções da busca binária */
-void* busca_binaria(const void *key, const void *base0, size_t nmemb, size_t size, int (*compar)(const void *, const void *), bool exibir_caminho) 
-{    //referencia: https://github.com/gcc-mirror/gcc/blob/master/libiberty/bsearch.c 
+void *busca_binaria(const void *key, const void *base0, size_t nmemb, size_t size, int (*compar)(const void *, const void *), bool exibir_caminho)
+{ // referencia: https://github.com/gcc-mirror/gcc/blob/master/libiberty/bsearch.c
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     size_t l, u, idx;
-  const void *p;
-  int comp;
+    const void *p;
+    int comp;
 
-  l = 0;
-  u = nmemb;
-  if(exibir_caminho)
-  printf(REGS_PERCORRIDOS);
-  while (l < u)
+    l = 0;
+    u = nmemb;
+    if (exibir_caminho)
+        printf(REGS_PERCORRIDOS);
+    while (l < u)
     {
-      idx = (l + u) / 2;
-      
-      p = (void *) (((const char *) base0) + (idx * size));//converte base0 para char e vai pra posicao 
-      comp = (*compar) (key, p);
-      if (comp < 0) //caso de nao achar e estar na esquerda
-      {
-	    u = idx;
-        if(exibir_caminho)
-            printf(" %d", idx);
-      }
-      else if (comp > 0) //caso de nao achar e estar na direita
+        idx = (l + u) / 2;
+
+        p = (void *)(((const char *)base0) + (idx * size)); // converte base0 para char e vai pra posicao
+        comp = (*compar)(key, p);
+        if (comp < 0) // caso de nao achar e estar na esquerda
         {
-	     l = idx + 1;
-         if(exibir_caminho)
-            printf(" %d", (int) idx);
+            u = idx;
+            if (exibir_caminho)
+                printf(" %d", idx);
         }
-      else //achou
-      {
-      if(exibir_caminho)
-        printf(" %d\n", (int) idx);
-	  return (void *) p;
-      }
+        else if (comp > 0) // caso de nao achar e estar na direita
+        {
+            l = idx + 1;
+            if (exibir_caminho)
+                printf(" %d", (int)idx);
+        }
+        else // achou
+        {
+            if (exibir_caminho)
+                printf(" %d\n", (int)idx);
+            return (void *)p;
+        }
     }
-    if(exibir_caminho)
+    if (exibir_caminho)
         printf("\n");
-  return NULL; //nao achou
-    
-    //printf(ERRO_NAO_IMPLEMENTADO, "busca_binaria");
+    return NULL; // nao achou
+
+    // printf(ERRO_NAO_IMPLEMENTADO, "busca_binaria");
 }
 
-void* busca_binaria_piso(const void* key, void* base, size_t num, size_t size, int (*compar)(const void*,const void*)) {
+void *busca_binaria_piso(const void *key, void *base, size_t num, size_t size, int (*compar)(const void *, const void *))
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "busca_binaria_piso");
 }
 
-void* busca_binaria_teto(const void* key, void* base, size_t num, size_t size, int (*compar)(const void*,const void*)) {
+void *busca_binaria_teto(const void *key, void *base, size_t num, size_t size, int (*compar)(const void *, const void *))
+{
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     printf(ERRO_NAO_IMPLEMENTADO, "busca_binaria_teto");
 }
