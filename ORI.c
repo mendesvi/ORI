@@ -885,7 +885,6 @@ Jogo recuperar_registro_jogo(int rrn)
     p = strtok(NULL, ";");
     j.preco = atof(p);
     p = strtok(NULL, ";");
-    strcpy(j.categorias, p);
     p = strtok(NULL, ";");
 
     return j;
@@ -897,7 +896,16 @@ Jogo recuperar_registro_jogo(int rrn)
 Compra recuperar_registro_compra(int rrn)
 {
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    printf(ERRO_NAO_IMPLEMENTADO, "recuperar_registro_compra");
+    Compra c;
+    char temp[TAM_REGISTRO_COMPRA + 1], *p;
+    strncpy(temp, ARQUIVO_COMPRAS + (rrn * TAM_REGISTRO_COMPRA), TAM_REGISTRO_COMPRA);
+    temp[TAM_REGISTRO_COMPRA] = '\0';
+
+    strcpy(c.id_user_dono, p);
+    strcpy(c.data_compra, p);
+    strcpy(c.id_game, p);
+    return c;
+    //printf(ERRO_NAO_IMPLEMENTADO, "recuperar_registro_compra");
 }
 
 /* Escreve no arquivo de usuários na posição informada (RRN)
@@ -964,7 +972,18 @@ void escrever_registro_jogo(Jogo j, int rrn)
 void escrever_registro_compra(Compra c, int rrn)
 {
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    printf(ERRO_NAO_IMPLEMENTADO, "escrever_registro_compra");
+    char temp[TAM_REGISTRO_COMPRA + 1], p[100];
+    temp[0] = '\0';
+    p[0] = '\0';
+
+    strcpy(temp, c.id_user_dono);
+    strcpy(temp, c.data_compra);
+    strcpy(temp, c.id_game);
+    strcat(temp, c.data_compra);
+    strcat(temp, p);
+    strncpy(ARQUIVO_COMPRAS + rrn * TAM_REGISTRO_COMPRA, temp, TAM_REGISTRO_COMPRA);
+    ARQUIVO_COMPRAS[qtd_registros_compras * TAM_REGISTRO_COMPRA] = '\0';
+   // printf(ERRO_NAO_IMPLEMENTADO, "escrever_registro_compra");
 }
 
 /* Funções principais */
@@ -1032,11 +1051,10 @@ void remover_usuario_menu(char *id_user)
     usuarios_index Uaux;           // instanciação
     strcpy(Uaux.id_user, id_user); // copia o conteudo
     usuarios_index *aux = (usuarios_index *)busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
-    
-    
+
     if (aux != NULL && aux->rrn != -1) // nao tem registro ou removido
     {
-        //printf("%d %d %d\n", aux->rrn);
+        // printf("%d %d %d\n", aux->rrn);
         ARQUIVO_USUARIOS[aux->rrn * TAM_REGISTRO_USUARIO] = '*'; // sobreescreve o registro deletado
         ARQUIVO_USUARIOS[aux->rrn * TAM_REGISTRO_USUARIO + 1] = '|';
         aux->rrn = -1;
@@ -1097,8 +1115,6 @@ void adicionar_saldo_menu(char *id_user, double valor)
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
     usuarios_index Uaux; // instanciação
     Usuario user;        // instanciação
-    // char p[TAM_SALDO];
-    // char temp[TAM_REGISTRO_USUARIO + 1];
 
     strcpy(Uaux.id_user, id_user); // copia o conteudo
     usuarios_index *aux = (usuarios_index *)busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
@@ -1125,8 +1141,50 @@ void adicionar_saldo_menu(char *id_user, double valor)
 
 void comprar_menu(char *id_user, char *titulo)
 {
+    int i=0;
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    printf(ERRO_NAO_IMPLEMENTADO, "comprar_menu");
+   titulos_index Jaux;          // instanciação
+   Jogo j;
+    strcpy(Jaux.titulo, titulo); // copia o conteudo
+    titulos_index *aux = (titulos_index *)busca_binaria(&Jaux, titulo_idx, qtd_registros_jogos, sizeof(titulos_index), qsort_titulo_idx, false);
+    usuarios_index Uaux;           // instanciação
+    Usuario user;
+    Compra compra;
+    strcpy(Uaux.id_user, id_user); // copia o conteudo
+    usuarios_index *aux2 = (usuarios_index *)busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
+    if ((aux != NULL && (strcmp(aux->titulo, titulo) != 1 && strcmp(aux->titulo, titulo) != -1)) && (aux2 != NULL && aux2->rrn != -1)) // checa se existe
+    {
+        user = recuperar_registro_usuario(aux2->rrn); 
+        if(user.saldo >= j.preco)
+        {
+            char date[TAM_DATE];
+            current_date(date);
+            strcpy(compra.data_compra, date);
+            strcpy(compra.id_user_dono, id_user);
+            strcpy(compra.id_game, titulo);
+            int rrn = qtd_registros_jogos; // instancia o rrn
+        jogos_idx[rrn].rrn = rrn;      // atribui um rrn para cada campo
+        // copia o conteudo das stings
+        strcpy(compras_idx[qtd_registros_compras].id_game, titulo);
+        strcpy(compras_idx[qtd_registros_compras].id_user, id_user);
+            escrever_registro_compra(compra, qtd_registros_compras);
+            qtd_registros_compras++;
+            printf(SUCESSO);
+            return;
+        }
+        else
+        {
+            printf(ERRO_SALDO_NAO_SUFICIENTE);
+        }
+        
+    }
+    else
+    {
+        printf(ERRO_REGISTRO_NAO_ENCONTRADO);
+        return;
+    }
+    
+   // printf(ERRO_NAO_IMPLEMENTADO, "comprar_menu");
 }
 
 void cadastrar_categoria_menu(char *titulo, char *categoria)
@@ -1203,9 +1261,6 @@ void listar_usuarios_id_user_menu()
     while (i < qtd_registros_usuarios)
     {
 
-        // strcpy(Uaux.id_user, usuarios_idx[i].id_user); // copia o conteudo
-        // usuarios_index *aux = (usuarios_index *)busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
-
         if (usuarios_idx[i].rrn != -1) // nao foi deletado
         {
             flag = 1;
@@ -1231,35 +1286,31 @@ void listar_compras_periodo_menu(char *data_inicio, char *data_fim)
 }
 
 /* Liberar espaço */
-void liberar_espaco_menu() //Vacuum
+void liberar_espaco_menu() // Vacuum
 {
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    int i = 0; 
-    int j = 0;
+    int aux = 0;
+    int aux2 = 0;
 
-    
-    while (ARQUIVO_USUARIOS[i] != '\0')
+    while (ARQUIVO_USUARIOS[aux] != '\0') // percorre o arquivo todo
     {
-        // Caso encontramos a marcação de removido, pulamos o registro.
-        if (i % TAM_REGISTRO_USUARIO == 0 && ARQUIVO_USUARIOS[i] == '*' && ARQUIVO_USUARIOS[i + 1] == '|')
+        // a ideia e percorrer todos os registros e quando achar um marcado como excluido
+        // sobreescrever ele empurrando os outros pra tras
+
+        if (ARQUIVO_USUARIOS[aux] == '*' && ARQUIVO_USUARIOS[aux + 1] == '|') // checa se esta marcado como removido
         {
-            i = i + TAM_REGISTRO_USUARIO;
+            aux = aux + TAM_REGISTRO_USUARIO; // atualiza o valor da variavel com valor de um novo regitro
+            printf(SUCESSO);
         }
-        
-        else
-        {
-            ARQUIVO_USUARIOS[j] = ARQUIVO_USUARIOS[i];
-            j++;
-            i++;
-        }
+        ARQUIVO_USUARIOS[aux2] = ARQUIVO_USUARIOS[aux]; //sobreescreve o registro
+        aux = aux + 1;
+        aux2 = aux2 + 1;
     }
 
-    
-    ARQUIVO_USUARIOS[j] = '\0';
-    
-     qtd_registros_usuarios = j / TAM_REGISTRO_USUARIO;
+    ARQUIVO_USUARIOS[aux2] = '\0';
 
-    
+    qtd_registros_usuarios = aux2 / TAM_REGISTRO_USUARIO; // atualiza a quantidade de usuarios registrados
+
     criar_usuarios_idx();
 
     // printf(ERRO_NAO_IMPLEMENTADO, "liberar_espaco_menu");
@@ -1463,7 +1514,7 @@ void *busca_binaria(const void *key, const void *base0, size_t nmemb, size_t siz
         {
             u = idx;
             if (exibir_caminho)
-                printf(" %d", idx);
+                printf(" %d", (int)idx); // conversao para tirar os warnings de tipo de dado
         }
         else if (comp > 0) // caso de nao achar e estar na direita
         {
