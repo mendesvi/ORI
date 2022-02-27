@@ -1163,8 +1163,9 @@ void adicionar_saldo_menu(char *id_user, double valor)
 
 void comprar_menu(char *id_user, char *titulo)
 {
-    //int i = 0;
+    
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
+    char date[TAM_DATE];
     titulos_index Jaux; // instanciação
     Jogo j;
     strcpy(Jaux.titulo, titulo); // copia o conteudo
@@ -1175,7 +1176,7 @@ void comprar_menu(char *id_user, char *titulo)
     strcpy(Uaux.id_user, id_user); // copia o conteudo 
     usuarios_index *aux2 = (usuarios_index *)busca_binaria(&Uaux, usuarios_idx, qtd_registros_usuarios, sizeof(usuarios_index), qsort_usuarios_idx, false);
     
-    if (aux2 != NULL && aux2->rrn != -1 && aux != NULL && (strcmp(aux->titulo, titulo) != 1 && strcmp(aux->titulo, titulo) != -1) )// checa se existe
+   if (aux2 != NULL && aux2->rrn != -1 && aux != NULL && (strcmp(aux->titulo, titulo) != 1 && strcmp(aux->titulo, titulo) != -1) )// checa se existe
     {
         int rrn_jogo;
         sscanf(aux->id_game, "%d", &rrn_jogo); //conversao para int
@@ -1184,15 +1185,16 @@ void comprar_menu(char *id_user, char *titulo)
         
         if (user.saldo >= j.preco)
         {
-            data_user_game_index date;
-            current_date(date.data);
-            printf("Data é: %s", date.data);
-            strcpy(compra.data_compra, date.data);
-            printf("Funciona pfvr: %s", compra.data_compra);
+        //precisa do qsort apos a insercao para ordenar no vetor e arrumar a data
+           
+           current_date(date);
+           // printf("Data é: %s", date);
+            //printf("Funciona pfvr: %s", compra.data_compra);
             strcpy(compra.id_user_dono, id_user);
             strcpy(compra.id_game, aux->id_game);
+            strcpy(compra.data_compra, date);
             // copia o conteudo das stings
-            strcpy(compras_idx[qtd_registros_compras].id_game, titulo);
+            strcpy(compras_idx[qtd_registros_compras].id_game, compra.id_game);
             strcpy(compras_idx[qtd_registros_compras].id_user, id_user);
             escrever_registro_compra(compra, qtd_registros_compras++);
             
@@ -1209,7 +1211,7 @@ void comprar_menu(char *id_user, char *titulo)
         printf(ERRO_REGISTRO_NAO_ENCONTRADO);
         return;
     }
-
+   
     // printf(ERRO_NAO_IMPLEMENTADO, "comprar_menu");
 }
 
