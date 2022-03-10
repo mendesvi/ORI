@@ -1295,28 +1295,28 @@ void cadastrar_categoria_menu(char *titulo, char *categoria)
     int i, var1;
     int *var2;
     int *var3;
-    
+    bool flag = false;
     for (i = 0; i < qtd_registros_jogos; i++)
     {
         j = recuperar_registro_jogo(i); //recupero todos os jogos
         for(int q = 0; q<QTD_MAX_CATEGORIAS; q++)
         {
-            if(j.titulo == titulo && j.categorias[q] == '\0') //se existe o titulo e não tem a categoria
+            if(j.titulo == titulo && j.categorias[q][0] == '\0') //se existe o titulo e não tem a categoria
             {
                 strcpy(j.categorias[q], categoria);
             }
         }
     }
     //chama as buscas pra conseguir recuperar o primeiro indice, e depois os indices interligados
-    inverted_list_secondary_search(&var3, false, categoria, &categorias_idx);
-    inverted_list_primary_search(NULL, false, var1, &var2);
+    inverted_list_secondary_search(var3, false, categoria, &categorias_idx);
+    inverted_list_primary_search(NULL, false, var1, var2, &categorias_idx);
     //printf(ERRO_NAO_IMPLEMENTADO, "cadastrar_categoria_menu");
     for(int h = 0; h < QTD_MAX_CATEGORIAS; h++)
     {
-        bool flag = false;
+       
         j = recuperar_registro_jogo(i); //recupero todos os jogos
         
-        if(j.titulo == titulo && j.categorias[h] ==  && flag = false) //se existe o titulo e não tem a categoria
+        if(j.titulo == titulo && j.categorias[h] == categoria && flag == false) //se existe o titulo e não tem a categoria
         {//checa se o titulo existe, a categoria ainda foi presente e se o campo categoria é nulo, para nao sobreescrever uma existente
             strcpy(j.categorias[h], categoria);
             flag = true;
@@ -1680,66 +1680,65 @@ int qsort_categorias_secundario_idx(const void *a, const void *b)
 void inverted_list_insert(char *chave_secundaria, char *chave_primaria, inverted_list *t)
 {
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    if(t->qtd_registros_primario == 0 && t->qtd_registros_secundario == 0)
+  // Primeira vez que estamos inserindo na lista invertida.
+    if (categorias_idx.qtd_registros_primario == 0 && categorias_idx.qtd_registros_secundario == 0)
     {
         /* caso de nao ter outros registros inseridos. A tabela estar em branco*/
-        strcpy(t->categorias_secundario_idx->chave_secundaria, chave_secundaria);
-        strcpy(t->categorias_primario_idx->chave_primaria, chave_primaria);
-        t->qtd_registros_primario++;
-        t->qtd_registros_secundario++;
-        t->categorias_secundario_idx->primeiro_indice = 0;
-        t->categorias_primario_idx->proximo_indice = -1; //nao tem outro elemento nesse caso
-        //t->categorias_secundario_idxproximo_indice = -1;
-        return;
-    } 
-    if(t->qtd_registros_primario != 0 && t->qtd_registros_secundario == 0)
-    { 
-        /*caso de ter uma categoria primaria inserida ja e ter que escrever na secundaria*/
-        for(int i=0; i<t->qtd_registros_secundario; i++)
-        {
-            if(strcmp(&t->categorias_secundario_idx[i], &chave_secundaria) == 0)
-            {
-               
-            }
-            else
-            {
-               t->categorias_secundario_idx[i].chave_secundaria = chave_secundaria;
-               t->qtd_registros_secundario++; 
-               t->categorias_primario_idx[i].proximo_indice = -1;
-            }
-        }
-    } 
-   // if()
-   // {  
-        //caso de ter categorias escolhida ja registrada
+        strcpy(categorias_idx.categorias_secundario_idx->chave_secundaria, chave_secundaria);
+        strcpy(categorias_idx.categorias_primario_idx->chave_primaria, chave_primaria);
 
-    //} 
-   //printf(ERRO_NAO_IMPLEMENTADO, "inverted_list_insert");
+        categorias_idx.qtd_registros_primario++;
+        categorias_idx.qtd_registros_secundario++;
+
+        categorias_idx.categorias_secundario_idx->primeiro_indice = 0;
+        categorias_idx.categorias_primario_idx->proximo_indice = -1; // nao tem outro elemento nesse caso
+
+        return;
+    }
+    else
+    {
+
+        int i, j;
+        bool flag = inverted_list_secondary_search(&i, false, chave_secundaria, t);
+
+        if(flag) 
+        {
+            if (inverted_list_primary_search(NULL, false, i, &j, t) > 0)
+            {
+                categorias_idx.categorias_primario_idx[j].proximo_indice = categorias_idx.qtd_registros_primario;
+                strcpy(categorias_idx.categorias_primario_idx[categorias_idx.qtd_registros_primario].chave_primaria, chave_primaria);
+                categorias_idx.categorias_primario_idx[categorias_idx.qtd_registros_primario].proximo_indice = -1;
+            }
+
+            return;
+        }
+        else
+        {
+            //
+            categorias_idx.categorias_secundario_idx[categorias_idx.qtd_registros_secundario].primeiro_indice = categorias_idx.qtd_registros_primario;
+            strcpy(categorias_idx.categorias_secundario_idx[categorias_idx.qtd_registros_secundario].chave_secundaria, chave_secundaria);
+            categorias_idx.qtd_registros_secundario++;
+            qsort(categorias_idx.categorias_secundario_idx, categorias_idx.qtd_registros_secundario, sizeof(categorias_secundario_index), qsort_categorias_secundario_idx);
+
+            return;
+        }
+    }
 }
 
 bool inverted_list_secondary_search(int *result, bool exibir_caminho, char *chave_secundaria, inverted_list *t)
 {
     /* <<< COMPLETE AQUI A IMPLEMENTAÇÃO >>> */
-    Jogo j;
-    bool o;
-    for (i = 0; i < qtd_registros_jogos; i++)
-    {
-        j = recuperar_registro_jogo(i); //recupero todos os jogos
-        for(int h = 0; h<QTD_MAX_CATEGORIAS; h++)
-        {
-          if(busca_binaria(j.categorias[h], categorias_idx, categorias_idx.qtd_registros_secundario, qsort_categorias_secundario_idx, false) != NULL)
-          {
-              result = t->categorias_secundario_idx->primeiro_indice;
-              o = true;
-          }
-          else
-          {
-              o = false;
-          }
-        }
-    }
-    
-    return (bool)result;
+    categorias_secundario_index c;
+   strcpy(c.chave_secundaria, chave_secundaria); //copia valor
+   categorias_secundario_index *ponteiroC = (categorias_secundario_index *)busca_binaria(&c, categorias_idx.categorias_secundario_idx, t->qtd_registros_secundario, sizeof(categorias_secundario_index), qsort_categorias_secundario_idx, false);
+
+   if (ponteiroC == NULL)
+   {
+      return false;
+   }
+
+   *result = ponteiroC->primeiro_indice;
+   return true;
     //printf(ERRO_NAO_IMPLEMENTADO, "inverted_list_secondary_search");
 }
 
@@ -1810,12 +1809,12 @@ void *busca_binaria_piso(const void *key, void *base, size_t num, size_t size, i
     int comp;
 
     l = 0;
-    u = nmemb;
+    u = num;
     while (l < u)
     {
         idx = (l + u) / 2;
 
-        p = (void *)(((const char *)base0) + (idx * size)); // converte base0 para char e vai pra posicao
+        p = (void *)(((const char *)base) + (idx * size)); // converte base0 para char e vai pra posicao
         comp = (*compar)(key, p);
         if (comp < 0) // caso de nao achar e estar na esquerda
         {
@@ -1830,7 +1829,7 @@ void *busca_binaria_piso(const void *key, void *base, size_t num, size_t size, i
        
     }
     
-    return (void *)p--; // nao achou
+    return (void *)p--; 
         
       
     //printf(ERRO_NAO_IMPLEMENTADO, "busca_binaria_piso");
@@ -1844,12 +1843,12 @@ void *busca_binaria_teto(const void *key, void *base, size_t num, size_t size, i
     int comp;
 
     l = 0;
-    u = nmemb;
+    u = num;
     while (l < u)
     {
         idx = (l + u) / 2;
 
-        p = (void *)(((const char *)base0) + (idx * size)); // converte base0 para char e vai pra posicao
+        p = (void *)(((const char *)base) + (idx * size)); // converte base0 para char e vai pra posicao
         comp = (*compar)(key, p);
         if (comp < 0) // caso de nao achar e estar na esquerda
         {
